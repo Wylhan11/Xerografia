@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9, #3e8640);
+            padding: 20px;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #0a5222;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #139536;
+            outline: none;
+            box-shadow: 0 0 8px rgba(19, 149, 54, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #139536;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #0a5222;
+        }
+
+    </style>
+    <script>
+        function login(event) {
+            event.preventDefault();
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+
+            if (username === "Wylhan11" && password === "71130359220") {
+                window.location.href = "Comentarios.html";
+            } else {
+                alert("Usuário ou senha incorretos!");
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Xerografia Login</h2>
+        <form onsubmit="login(event)">
+            <input type="text" id="username" name="username" placeholder="Usuário" required>
+            <input type="password" id="password" name="password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+    </div>
+
+</body>
+</html>

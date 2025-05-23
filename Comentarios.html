@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Comentários - Setor de Xerografia</title>
+  <!-- Importação da fonte Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #e8f5e9, #3e8640);
+      padding: 20px;
+    }
+    
+    .container {
+      width: 90%;
+      max-width: 600px;
+      background-color: #ffffff;
+      padding: 2.5rem;
+      border-radius: 15px;
+      box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: #333;
+      letter-spacing: 1px;
+    }
+    
+    .filters {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .filter-button {
+      background: #3498db;
+      border: none;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    
+    .filter-button:hover {
+      background: #2980b9;
+      transform: scale(1.05);
+    }
+    
+    .filter-button.active {
+      background: #2ecc71;
+    }
+    
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    
+    li {
+      background-color: #f9f9f9;
+      margin-bottom: 1.2rem;
+      padding: 1rem;
+      border-radius: 10px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    li:hover {
+      transform: translateY(-3px);
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    p {
+      text-align: center;
+      color: #555;
+      font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+    
+    .delete-button {
+      background-color: #e74c3c;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      transition: background-color 0.3s, transform 0.3s;
+      display: block;
+      margin-left: auto;
+    }
+    
+    .delete-button:hover {
+      background-color: #c0392b;
+      transform: scale(1.05);
+    }
+    
+    .back-button {
+      display: block;
+      background-color: #3498db;
+      color: #fff;
+      text-align: center;
+      padding: 0.8rem 1.5rem;
+      border-radius: 30px;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: background-color 0.3s, transform 0.3s;
+      margin: 20px auto 0;
+      width: fit-content;
+    }
+    
+    .back-button:hover {
+      background-color: #2980b9;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Lista de Comentários</h1>
+    
+    <!-- Botões de filtro -->
+    <div class="filters">
+      <button class="filter-button" id="filter-all">Todos</button>
+      <button class="filter-button" id="filter-7days">Últimos 7 dias</button>
+      <button class="filter-button" id="filter-lastweek">Última Semana</button>
+      <button class="filter-button" id="filter-1year">Último Ano</button>
+    </div>
+    
+    <!-- Área onde os comentários serão exibidos -->
+    <div id="comments-list"></div>
+    
+    <!-- Botão para retornar à página principal -->
+    <a href="Xerografia.html" class="back-button">Voltar</a>
+  </div>
+  
+  <script>
+    // Variável global para manter o filtro atual
+    let currentFilter = 'all';
+
+    // Obtém os comentários salvos no localStorage (cada comentário possui as propriedades: date, rating e text)
+    function getComments() {
+      let comments = [];
+      if (localStorage.getItem("comments")) {
+        try {
+          comments = JSON.parse(localStorage.getItem("comments"));
+        } catch (e) {
+          console.error("Erro ao analisar os comentários do localStorage:", e);
+        }
+      }
+      return comments;
+    }
+    
+    // Renderiza os comentários conforme o formato definido e adiciona um botão de apagar para cada item.
+    function renderComments(commentsArray) {
+      const commentsListDiv = document.getElementById('comments-list');
+      if (commentsArray.length === 0) {
+        commentsListDiv.innerHTML = "<p>Não há comentários.</p>";
+      } else {
+        let listHTML = "<ul>";
+        commentsArray.forEach(function(comment) {
+          listHTML += `<li>
+                        <strong>Data:</strong> ${comment.date}<br>
+                        <strong>Avaliação:</strong> ${comment.rating} estrela(s)<br>
+                        <strong>Comentário:</strong> ${comment.text}<br>
+                        <button class="delete-button" onclick="deleteComment('${comment.date}', '${comment.rating}', '${encodeURIComponent(comment.text)}')">Apagar</button>
+                      </li>`;
+        });
+        listHTML += "</ul>";
+        commentsListDiv.innerHTML = listHTML;
+      }
+    }
+    
+    // Função que filtra e organiza os comentários de acordo com o segmento selecionado.
+    function filterComments(segment) {
+      currentFilter = segment;
+      const comments = getComments();
+      const now = new Date();
+      let filtered = [];
+      
+      if (segment === '7days') {
+        const threshold = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        filtered = comments.filter(c => new Date(c.date) >= threshold);
+      } else if (segment === 'lastweek') {
+        const currentDate = new Date();
+        const dayIndex = (currentDate.getDay() + 6) % 7; // ajusta para que segunda seja o início
+        const startOfThisWeek = new Date(currentDate);
+        startOfThisWeek.setHours(0, 0, 0, 0);
+        startOfThisWeek.setDate(currentDate.getDate() - dayIndex);
+        const startOfLastWeek = new Date(startOfThisWeek);
+        startOfLastWeek.setDate(startOfThisWeek.getDate() - 7);
+        const endOfLastWeek = new Date(startOfThisWeek);
+        endOfLastWeek.setMilliseconds(-1);
+        filtered = comments.filter(c => {
+          const commentDate = new Date(c.date);
+          return commentDate >= startOfLastWeek && commentDate <= endOfLastWeek;
+        });
+      } else if (segment === '1year') {
+        const threshold = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+        filtered = comments.filter(c => new Date(c.date) >= threshold);
+      } else {
+        filtered = comments;
+      }
+      
+      // Ordena os comentários em ordem decrescente (os mais recentes primeiro)
+      filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+      renderComments(filtered);
+    }
+    
+    // Configura os eventos dos botões de filtro e exibe os comentários conforme o filtro selecionado.
+    document.addEventListener("DOMContentLoaded", function() {
+      renderComments(getComments());
+      
+      const buttons = document.querySelectorAll('.filter-button');
+      buttons.forEach(button => {
+        button.addEventListener('click', function() {
+          buttons.forEach(btn => btn.classList.remove('active'));
+          this.classList.add('active');
+          
+          let segment = 'all';
+          if(this.id === 'filter-7days') {
+            segment = '7days';
+          } else if(this.id === 'filter-lastweek') {
+            segment = 'lastweek';
+          } else if(this.id === 'filter-1year') {
+            segment = '1year';
+          }
+          filterComments(segment);
+        });
+      });
+      
+      // Atualiza os comentários a cada 10 segundos
+      setInterval(function() {
+        filterComments(currentFilter);
+      }, 1000);
+    });
+    
+    // Função para apagar o comentário especificado
+    function deleteComment(date, rating, encodedText) {
+      const text = decodeURIComponent(encodedText);
+      let comments = getComments();
+      const indexToDelete = comments.findIndex(c => c.date === date && c.rating == rating && c.text === text);
+      if (indexToDelete > -1) {
+        comments.splice(indexToDelete, 1);
+        localStorage.setItem("comments", JSON.stringify(comments));
+      }
+      filterComments(currentFilter);
+    }
+  </script>
+</body>
+</html>
